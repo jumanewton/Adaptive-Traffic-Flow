@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<routes xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://sumo.dlr.de/xsd/routes_file.xsd">
+
+  <!-- Vehicle types -->
+  <vType id="car" vClass="passenger" length="4.5" maxSpeed="13.89" accel="2.5" decel="4.5" sigma="0.5" color="1,0,0" guiShape="passenger"/>
+  <vType id="truck" vClass="truck" length="12.0" maxSpeed="11.11" accel="1.5" decel="3.0" sigma="0.5" color="0,0,1" guiShape="truck"/>
+  <vType id="bus" vClass="bus" length="12.0" maxSpeed="11.11" accel="1.5" decel="3.0" sigma="0.5" color="0,1,0" guiShape="bus"/>
+
+  <!-- Routes for all turning movements -->
+  <!-- Northbound through -->
+  <route id="north_south" edges="north_entry_to_stop north_stop_to_center :center_0 center_to_south_exit south_exit_to_entry"/>
+  <!-- Northbound right (east) -->
+  <route id="north_east" edges="north_entry_to_stop north_stop_to_center :center_4 center_to_east_exit east_exit_to_entry"/>
+  <!-- Northbound left (west) -->
+  <route id="north_west" edges="north_entry_to_stop north_stop_to_center :center_6 center_to_west_exit west_exit_to_entry"/>
+
+  <!-- Southbound through -->
+  <route id="south_north" edges="south_entry_to_stop south_stop_to_center :center_1 center_to_north_exit north_exit_to_entry"/>
+  <!-- Southbound right (west) -->
+  <route id="south_west" edges="south_entry_to_stop south_stop_to_center :center_5 center_to_west_exit west_exit_to_entry"/>
+  <!-- Southbound left (east) -->
+  <route id="south_east" edges="south_entry_to_stop south_stop_to_center :center_7 center_to_east_exit east_exit_to_entry"/>
+
+  <!-- Eastbound through -->
+  <route id="east_west" edges="east_entry_to_stop east_stop_to_center :center_2 center_to_west_exit west_exit_to_entry"/>
+  <!-- Eastbound right (south) -->
+  <route id="east_south" edges="east_entry_to_stop east_stop_to_center :center_7 center_to_south_exit south_exit_to_entry"/>
+  <!-- Eastbound left (north) -->
+  <route id="east_north" edges="east_entry_to_stop east_stop_to_center :center_5 center_to_north_exit north_exit_to_entry"/>
+
+  <!-- Westbound through -->
+  <route id="west_east" edges="west_entry_to_stop west_stop_to_center :center_3 center_to_east_exit east_exit_to_entry"/>
+  <!-- Westbound right (north) -->
+  <route id="west_north" edges="west_entry_to_stop west_stop_to_center :center_6 center_to_north_exit north_exit_to_entry"/>
+  <!-- Westbound left (south) -->
+  <route id="west_south" edges="west_entry_to_stop west_stop_to_center :center_4 center_to_south_exit south_exit_to_entry"/>
+
+  <!-- Traffic flows - Peak hour demand (vehicles per hour) -->
+  <!-- North-South: 800 veh/h each direction -->
+  <flow id="flow_north_south" route="north_south" type="car" begin="0" end="3600" period="4.5" departLane="best" departSpeed="max"/>
+  <flow id="flow_north_east" route="north_east" type="car" begin="0" end="3600" period="18" departLane="best" departSpeed="max"/>
+  <flow id="flow_north_west" route="north_west" type="car" begin="0" end="3600" period="36" departLane="best" departSpeed="max"/>
+
+  <flow id="flow_south_north" route="south_north" type="car" begin="0" end="3600" period="4.5" departLane="best" departSpeed="max"/>
+  <flow id="flow_south_west" route="south_west" type="car" begin="0" end="3600" period="18" departLane="best" departSpeed="max"/>
+  <flow id="flow_south_east" route="south_east" type="car" begin="0" end="3600" period="36" departLane="best" departSpeed="max"/>
+
+  <!-- East-West: 600 veh/h each direction -->
+  <flow id="flow_east_west" route="east_west" type="car" begin="0" end="3600" period="6" departLane="best" departSpeed="max"/>
+  <flow id="flow_east_south" route="east_south" type="car" begin="0" end="3600" period="15" departLane="best" departSpeed="max"/>
+  <flow id="flow_east_north" route="east_north" type="car" begin="0" end="3600" period="30" departLane="best" departSpeed="max"/>
+
+  <flow id="flow_west_east" route="west_east" type="car" begin="0" end="3600" period="6" departLane="best" departSpeed="max"/>
+  <flow id="flow_west_north" route="west_north" type="car" begin="0" end="3600" period="15" departLane="best" departSpeed="max"/>
+  <flow id="flow_west_south" route="west_south" type="car" begin="0" end="3600" period="30" departLane="best" departSpeed="max"/>
+
+  <!-- Add some trucks (5%) -->
+  <flow id="flow_north_south_truck" route="north_south" type="truck" begin="0" end="3600" period="90" departLane="best" departSpeed="max"/>
+  <flow id="flow_south_north_truck" route="south_north" type="truck" begin="0" end="3600" period="90" departLane="best" departSpeed="max"/>
+  <flow id="flow_east_west_truck" route="east_west" type="truck" begin="0" end="3600" period="120" departLane="best" departSpeed="max"/>
+  <flow id="flow_west_east_truck" route="west_east" type="truck" begin="0" end="3600" period="120" departLane="best" departSpeed="max"/>
+
+</routes>

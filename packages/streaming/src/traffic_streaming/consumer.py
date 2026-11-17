@@ -184,6 +184,42 @@ class EventHandlerRegistry:
 handler_registry = EventHandlerRegistry()
 
 
+# Synchronous wrapper for scripts
+class SyncEventConsumer:
+    """Synchronous wrapper around EventConsumer for simple scripts."""
+
+    def __init__(
+        self,
+        topics: list[str],
+        group_id: str | None = None,
+        handlers: list[EventHandler] | None = None,
+        settings: StreamingSettings | None = None,
+    ):
+        self._consumer = EventConsumer(topics, group_id, handlers, settings)
+        import asyncio
+
+        asyncio.run(self._consumer.start())
+
+    def add_handler(self, handler: EventHandler) -> None:
+        self._consumer.add_handler(handler)
+
+    def run_forever(self) -> None:
+        import asyncio
+
+        asyncio.run(self._consumer.run())
+
+    def close(self) -> None:
+        import asyncio
+
+        asyncio.run(self._consumer.stop())
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+
+
 # Example handlers
 class LoggingEventHandler(EventHandler):
     """Simple handler that logs events."""

@@ -1,0 +1,30 @@
+[project]
+name = "traffic-control-service"
+version = "0.1.0"
+description = "Traffic signal control service and experiment runner"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "traffic-domain",
+    "traffic-config",
+    "traffic-observability",
+    "traffic-control",
+    "traffic-simulation",
+    "numpy>=1.26",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["traffic_control_service*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true

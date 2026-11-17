@@ -1,0 +1,14 @@
+Metadata-Version: 2.4
+Name: traffic-state-service
+Version: 0.1.0
+Summary: Traffic state estimation service - aggregates tracks into traffic state
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: traffic-tracking
+Requires-Dist: traffic-vision
+Requires-Dist: traffic-traffic
+Requires-Dist: traffic-streaming
+Requires-Dist: traffic-simulation

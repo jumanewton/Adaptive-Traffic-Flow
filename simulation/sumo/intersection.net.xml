@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<net version="1.20" junctionCornerDetail="5" limitTurnSpeed="5.50">
+  <location netOffset="0.00,0.00,0.00" convBoundary="0.00,0.00,0.00,0.00" origBoundary="-10000000000.00,-10000000000.00,10000000000.00,10000000000.00" projParameter="+proj=utm +zone=33 +ellps=WGS84 +datum=WGS84 +units=m +no_defs"/>
+
+  <!-- Edge types -->
+  <type id="highway" priority="3" numLanes="2" speed="13.89" width="3.5"/>
+  <type id="arterial" priority="2" numLanes="2" speed="11.11" width="3.5"/>
+  <type id="collector" priority="1" numLanes="1" speed="8.33" width="3.5"/>
+
+  <!-- Nodes/Junctions -->
+  <junction id="center" type="traffic_light" x="0.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- North approach -->
+  <junction id="north_entry" type="priority" x="0.0" y="-300.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+  <junction id="north_stop" type="priority" x="0.0" y="-10.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- South approach -->
+  <junction id="south_entry" type="priority" x="0.0" y="300.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+  <junction id="south_stop" type="priority" x="0.0" y="10.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- East approach -->
+  <junction id="east_entry" type="priority" x="300.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+  <junction id="east_stop" type="priority" x="10.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- West approach -->
+  <junction id="west_entry" type="priority" x="-300.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+  <junction id="west_stop" type="priority" x="-10.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- Edges -->
+  <!-- Northbound: north_entry -> north_stop -> center -->
+  <edge id="north_entry_to_stop" from="north_entry" to="north_stop" type="arterial" priority="2">
+    <lane id="north_entry_to_stop_0" index="0" speed="11.11" length="290.0" width="3.5" shape="0.0,-300.0 0.0,-10.0"/>
+    <lane id="north_entry_to_stop_1" index="1" speed="11.11" length="290.0" width="3.5" shape="0.0,-300.0 0.0,-10.0"/>
+  </edge>
+
+  <edge id="north_stop_to_center" from="north_stop" to="center" type="arterial" priority="2">
+    <lane id="north_stop_to_center_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,-10.0 0.0,0.0"/>
+    <lane id="north_stop_to_center_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,-10.0 0.0,0.0"/>
+  </edge>
+
+  <!-- Southbound: south_entry -> south_stop -> center -->
+  <edge id="south_entry_to_stop" from="south_entry" to="south_stop" type="arterial" priority="2">
+    <lane id="south_entry_to_stop_0" index="0" speed="11.11" length="290.0" width="3.5" shape="0.0,300.0 0.0,10.0"/>
+    <lane id="south_entry_to_stop_1" index="1" speed="11.11" length="290.0" width="3.5" shape="0.0,300.0 0.0,10.0"/>
+  </edge>
+
+  <edge id="south_stop_to_center" from="south_stop" to="center" type="arterial" priority="2">
+    <lane id="south_stop_to_center_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,10.0 0.0,0.0"/>
+    <lane id="south_stop_to_center_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,10.0 0.0,0.0"/>
+  </edge>
+
+  <!-- Eastbound: east_entry -> east_stop -> center -->
+  <edge id="east_entry_to_stop" from="east_entry" to="east_stop" type="arterial" priority="2">
+    <lane id="east_entry_to_stop_0" index="0" speed="11.11" length="290.0" width="3.5" shape="300.0,0.0 10.0,0.0"/>
+    <lane id="east_entry_to_stop_1" index="1" speed="11.11" length="290.0" width="3.5" shape="300.0,0.0 10.0,0.0"/>
+  </edge>
+
+  <edge id="east_stop_to_center" from="east_stop" to="center" type="arterial" priority="2">
+    <lane id="east_stop_to_center_0" index="0" speed="11.11" length="10.0" width="3.5" shape="10.0,0.0 0.0,0.0"/>
+    <lane id="east_stop_to_center_1" index="1" speed="11.11" length="10.0" width="3.5" shape="10.0,0.0 0.0,0.0"/>
+  </edge>
+
+  <!-- Westbound: west_entry -> west_stop -> center -->
+  <edge id="west_entry_to_stop" from="west_entry" to="west_stop" type="arterial" priority="2">
+    <lane id="west_entry_to_stop_0" index="0" speed="11.11" length="290.0" width="3.5" shape="-300.0,0.0 -10.0,0.0"/>
+    <lane id="west_entry_to_stop_1" index="1" speed="11.11" length="290.0" width="3.5" shape="-300.0,0.0 -10.0,0.0"/>
+  </edge>
+
+  <edge id="west_stop_to_center" from="west_stop" to="center" type="arterial" priority="2">
+    <lane id="west_stop_to_center_0" index="0" speed="11.11" length="10.0" width="3.5" shape="-10.0,0.0 0.0,0.0"/>
+    <lane id="west_stop_to_center_1" index="1" speed="11.11" length="10.0" width="3.5" shape="-10.0,0.0 0.0,0.0"/>
+  </edge>
+
+  <!-- Internal edges (within intersection) -->
+  <!-- North-South through movements -->
+  <edge id=":center_0" function="internal" from="center" to="center">
+    <lane id=":center_0_0" index="0" speed="5.56" length="10.0" width="3.5" shape="0.0,-10.0 0.0,10.0"/>
+  </edge>
+
+  <edge id=":center_1" function="internal" from="center" to="center">
+    <lane id=":center_1_0" index="0" speed="5.56" length="10.0" width="3.5" shape="0.0,-10.0 0.0,10.0"/>
+  </edge>
+
+  <!-- East-West through movements -->
+  <edge id=":center_2" function="internal" from="center" to="center">
+    <lane id=":center_2_0" index="0" speed="5.56" length="10.0" width="3.5" shape="-10.0,0.0 10.0,0.0"/>
+  </edge>
+
+  <edge id=":center_3" function="internal" from="center" to="center">
+    <lane id=":center_3_0" index="0" speed="5.56" length="10.0" width="3.5" shape="-10.0,0.0 10.0,0.0"/>
+  </edge>
+
+  <!-- Turn movements -->
+  <edge id=":center_4" function="internal" from="center" to="center">
+    <lane id=":center_4_0" index="0" speed="5.56" length="14.14" width="3.5" shape="0.0,-10.0 10.0,0.0"/>
+  </edge>
+
+  <edge id=":center_5" function="internal" from="center" to="center">
+    <lane id=":center_5_0" index="0" speed="5.56" length="14.14" width="3.5" shape="0.0,10.0 -10.0,0.0"/>
+  </edge>
+
+  <edge id=":center_6" function="internal" from="center" to="center">
+    <lane id=":center_6_0" index="0" speed="5.56" length="14.14" width="3.5" shape="-10.0,0.0 0.0,-10.0"/>
+  </edge>
+
+  <edge id=":center_7" function="internal" from="center" to="center">
+    <lane id=":center_7_0" index="0" speed="5.56" length="14.14" width="3.5" shape="10.0,0.0 0.0,10.0"/>
+  </edge>
+
+  <!-- Exit edges -->
+  <!-- North exit -->
+  <edge id="center_to_north_exit" from="center" to="north_exit" type="arterial" priority="2">
+    <lane id="center_to_north_exit_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 0.0,-10.0"/>
+    <lane id="center_to_north_exit_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 0.0,-10.0"/>
+  </edge>
+
+  <junction id="north_exit" type="priority" x="0.0" y="-10.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <edge id="north_exit_to_entry" from="north_exit" to="north_exit_final" type="arterial" priority="2">
+    <lane id="north_exit_to_entry_0" index="0" speed="11.11" length="290.0" width="3.5" shape="0.0,-10.0 0.0,-300.0"/>
+    <lane id="north_exit_to_entry_1" index="1" speed="11.11" length="290.0" width="3.5" shape="0.0,-10.0 0.0,-300.0"/>
+  </edge>
+
+  <junction id="north_exit_final" type="priority" x="0.0" y="-300.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- South exit -->
+  <edge id="center_to_south_exit" from="center" to="south_exit" type="arterial" priority="2">
+    <lane id="center_to_south_exit_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 0.0,10.0"/>
+    <lane id="center_to_south_exit_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 0.0,10.0"/>
+  </edge>
+
+  <junction id="south_exit" type="priority" x="0.0" y="10.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <edge id="south_exit_to_entry" from="south_exit" to="south_exit_final" type="arterial" priority="2">
+    <lane id="south_exit_to_entry_0" index="0" speed="11.11" length="290.0" width="3.5" shape="0.0,10.0 0.0,300.0"/>
+    <lane id="south_exit_to_entry_1" index="1" speed="11.11" length="290.0" width="3.5" shape="0.0,10.0 0.0,300.0"/>
+  </edge>
+
+  <junction id="south_exit_final" type="priority" x="0.0" y="300.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- East exit -->
+  <edge id="center_to_east_exit" from="center" to="east_exit" type="arterial" priority="2">
+    <lane id="center_to_east_exit_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 10.0,0.0"/>
+    <lane id="center_to_east_exit_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 10.0,0.0"/>
+  </edge>
+
+  <junction id="east_exit" type="priority" x="10.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <edge id="east_exit_to_entry" from="east_exit" to="east_exit_final" type="arterial" priority="2">
+    <lane id="east_exit_to_entry_0" index="0" speed="11.11" length="290.0" width="3.5" shape="10.0,0.0 300.0,0.0"/>
+    <lane id="east_exit_to_entry_1" index="1" speed="11.11" length="290.0" width="3.5" shape="10.0,0.0 300.0,0.0"/>
+  </edge>
+
+  <junction id="east_exit_final" type="priority" x="300.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- West exit -->
+  <edge id="center_to_west_exit" from="center" to="west_exit" type="arterial" priority="2">
+    <lane id="center_to_west_exit_0" index="0" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 -10.0,0.0"/>
+    <lane id="center_to_west_exit_1" index="1" speed="11.11" length="10.0" width="3.5" shape="0.0,0.0 -10.0,0.0"/>
+  </edge>
+
+  <junction id="west_exit" type="priority" x="-10.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <edge id="west_exit_to_entry" from="west_exit" to="west_exit_final" type="arterial" priority="2">
+    <lane id="west_exit_to_entry_0" index="0" speed="11.11" length="290.0" width="3.5" shape="-10.0,0.0 -300.0,0.0"/>
+    <lane id="west_exit_to_entry_1" index="1" speed="11.11" length="290.0" width="3.5" shape="-10.0,0.0 -300.0,0.0"/>
+  </edge>
+
+  <junction id="west_exit_final" type="priority" x="-300.0" y="0.0" incLanes="" intLanes="" shape="0.0,0.0 0.0,0.0"/>
+
+  <!-- Connections (lane-to-lane mappings within junction) -->
+  <connection from="north_stop_to_center" to=":center_0" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from="north_stop_to_center" to=":center_1" fromLane="1" toLane="0" dir="s" state="M"/>
+  <connection from="north_stop_to_center" to=":center_4" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from="north_stop_to_center" to=":center_6" fromLane="1" toLane="0" dir="l" state="M"/>
+
+  <connection from="south_stop_to_center" to=":center_0" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from="south_stop_to_center" to=":center_1" fromLane="1" toLane="0" dir="s" state="M"/>
+  <connection from="south_stop_to_center" to=":center_5" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from="south_stop_to_center" to=":center_7" fromLane="1" toLane="0" dir="l" state="M"/>
+
+  <connection from="east_stop_to_center" to=":center_2" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from="east_stop_to_center" to=":center_3" fromLane="1" toLane="0" dir="s" state="M"/>
+  <connection from="east_stop_to_center" to=":center_7" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from="east_stop_to_center" to=":center_5" fromLane="1" toLane="0" dir="l" state="M"/>
+
+  <connection from="west_stop_to_center" to=":center_2" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from="west_stop_to_center" to=":center_3" fromLane="1" toLane="0" dir="s" state="M"/>
+  <connection from="west_stop_to_center" to=":center_6" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from="west_stop_to_center" to=":center_4" fromLane="1" toLane="0" dir="l" state="M"/>
+
+  <!-- Internal connections to exits -->
+  <connection from=":center_0" to="center_to_south_exit" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from=":center_1" to="center_to_south_exit" fromLane="0" toLane="1" dir="s" state="M"/>
+  <connection from=":center_2" to="center_to_west_exit" fromLane="0" toLane="0" dir="s" state="M"/>
+  <connection from=":center_3" to="center_to_west_exit" fromLane="0" toLane="1" dir="s" state="M"/>
+  <connection from=":center_4" to="center_to_east_exit" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from=":center_5" to="center_to_west_exit" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from=":center_6" to="center_to_north_exit" fromLane="0" toLane="0" dir="r" state="M"/>
+  <connection from=":center_7" to="center_to_east_exit" fromLane="0" toLane="0" dir="r" state="M"/>
+
+  <!-- Traffic light logic for center junction -->
+  <tlLogic id="center" type="static" programID="0" offset="0">
+    <!-- Phase 0: North-South Green (0-49s) -->
+    <phase duration="50" state="GGggrrrrGGggrrrr"/>
+    <!-- Phase 1: North-South Yellow (50-52s) -->
+    <phase duration="3" state="YYyyrrrrYYyyrrrr"/>
+    <!-- Phase 2: East-West Green (53-102s) -->
+    <phase duration="50" state="rrrrGGggrrrrGGgg"/>
+    <!-- Phase 3: East-West Yellow (103-105s) -->
+    <phase duration="3" state="rrrrYYyyrrrrYYyy"/>
+    <!-- All red handled by yellow transitions -->
+  </tlLogic>
+</net>

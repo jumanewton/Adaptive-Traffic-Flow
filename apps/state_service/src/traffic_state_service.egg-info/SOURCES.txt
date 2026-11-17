@@ -1,0 +1,9 @@
+pyproject.toml
+src/traffic_state_service/__init__.py
+src/traffic_state_service/__main__.py
+src/traffic_state_service/main.py
+src/traffic_state_service.egg-info/PKG-INFO
+src/traffic_state_service.egg-info/SOURCES.txt
+src/traffic_state_service.egg-info/dependency_links.txt
+src/traffic_state_service.egg-info/requires.txt
+src/traffic_state_service.egg-info/top_level.txt

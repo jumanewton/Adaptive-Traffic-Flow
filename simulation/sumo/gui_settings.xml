@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<viewsettings>
+  <scheme name="real world">
+    <colors>
+      <background value="255,255,255"/>
+      <edge value="128,128,128"/>
+      <lane value="128,128,128"/>
+      <junction value="0,0,0"/>
+      <vehicle value="0,0,0"/>
+    </colors>
+  </scheme>
+  <delay value="10"/>
+  <window>
+    <position x="0" y="0" w="1400" h="900"/>
+  </window>
+  <zoom value="200"/>
+  <center x="0" y="0"/>
+</viewsettings>

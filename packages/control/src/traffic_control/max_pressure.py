@@ -73,6 +73,7 @@ class MaxPressureController(BaseController):
         if settings:
             self._pressure_weight = settings.max_pressure_pressure_weight
             self._downstream_weight = settings.max_pressure_downstream_weight
+            self._settings = settings  # Store for access in methods
 
     def compute_action(self, state: TrafficState) -> ControllerRecommendation:
         """Compute max-pressure action."""
@@ -96,7 +97,7 @@ class MaxPressureController(BaseController):
         else:
             # Switch phase
             action = ControllerAction.SWITCH_PHASE
-            duration = self._settings.min_green_time if self._settings else 10
+            duration = self.settings.min_green_time if self.settings else 10
             reason = (
                 f"Max-pressure: switching from {current_phase.value} to {best_phase.value} "
                 f"(pressure: {pressures[current_phase]:.1f} -> {max_pressure:.1f})"
@@ -155,11 +156,11 @@ class MaxPressureController(BaseController):
         current_phase: SignalPhase,
     ) -> float:
         """Calculate how long to extend current green."""
-        if not self._settings:
+        if not self.settings:
             return 5.0
 
-        min_green = self._settings.max_pressure_min_green
-        max_green = self._settings.max_pressure_max_green
+        min_green = self.settings.max_pressure_min_green
+        max_green = self.settings.max_pressure_max_green
 
         # Base extension
         extension = 5.0

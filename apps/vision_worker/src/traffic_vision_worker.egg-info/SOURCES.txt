@@ -1,5 +1,6 @@
 pyproject.toml
 src/traffic_vision_worker/__init__.py
+src/traffic_vision_worker/__main__.py
 src/traffic_vision_worker/main.py
 src/traffic_vision_worker.egg-info/PKG-INFO
 src/traffic_vision_worker.egg-info/SOURCES.txt

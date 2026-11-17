@@ -51,17 +51,10 @@ class FixedTimeController(BaseController):
             self._phase_durations[SignalPhase.EAST_WEST_GREEN] = ew_green
 
         self._phase_index = 0
-        self._time_in_cycle = 0.0
 
     def compute_action(self, state: TrafficState) -> ControllerRecommendation:
         """Compute fixed-time action based on cycle timing."""
         current_phase = self._current_phase or self._phase_sequence[0]
-
-        # Update time in cycle
-        if self.settings:
-            self._time_in_cycle += self.settings.control_loop_interval_s
-        else:
-            self._time_in_cycle += 1.0
 
         # Get current phase duration
         phase_duration = self._phase_durations.get(current_phase, 30)
@@ -92,7 +85,12 @@ class FixedTimeController(BaseController):
                 simulation_only=True,
             )
         else:
-            # Hold current phase
+            # Hold current phase - update elapsed time
+            if self.settings:
+                self.update_phase_elapsed(self.settings.control_loop_interval_s)
+            else:
+                self.update_phase_elapsed(1.0)
+
             action = ControllerAction.HOLD_PHASE
             duration = time_remaining
             reason = f"Fixed-time: holding {current_phase.value} for {time_remaining:.1f}s"
@@ -113,6 +111,5 @@ class FixedTimeController(BaseController):
     def reset(self) -> None:
         """Reset controller to initial state."""
         self._phase_index = 0
-        self._time_in_cycle = 0.0
         self._current_phase = None
         self._phase_elapsed = 0.0
