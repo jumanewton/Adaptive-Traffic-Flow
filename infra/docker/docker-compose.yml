@@ -1,0 +1,253 @@
+version: '3.8'
+
+services:
+  # =============================================================================
+  # Message Streaming - Redpanda (Kafka-compatible, simpler than Kafka)
+  # =============================================================================
+  redpanda:
+    image: docker.redpanda.com/redpandadata/redpanda:v24.2.10
+    container_name: traffic-redpanda
+    command:
+      - redpanda
+      - start
+      - --kafka-addr=PLAINTEXT://0.0.0.0:9092
+      - --advertise-kafka-addr=PLAINTEXT://redpanda:9092
+      - --rpc-addr=0.0.0.0:33145
+      - --advertise-rpc-addr=redpanda:33145
+    ports:
+      - "9092:9092"
+      - "33145:33145"
+    healthcheck:
+      test: ["CMD-SHELL", "rpk cluster health --timeout 3s"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - redpanda_data:/var/lib/redpanda/data
+    networks:
+      - traffic-net
+
+  # Redpanda Console (Kafka UI)
+  redpanda-console:
+    image: docker.redpanda.com/redpandadata/console:v2.5.2
+    container_name: traffic-redpanda-console
+    ports:
+      - "8080:8080"
+    environment:
+      KAFKA_BROKERS: "redpanda:9092"
+      REDPANDA_ADMIN_API: "http://redpanda:9644"
+    depends_on:
+      redpanda:
+        condition: service_healthy
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Time-series Database - TimescaleDB (PostgreSQL extension)
+  # =============================================================================
+  timescaledb:
+    image: timescale/timescaledb:latest-pg16
+    container_name: traffic-timescaledb
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: traffic
+      POSTGRES_PASSWORD: traffic
+      POSTGRES_DB: traffic_lab
+    volumes:
+      - timescaledb_data:/var/lib/postgresql/data
+      - ./init-timescaledb.sql:/docker-entrypoint-initdb.d/init-timescaledb.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U traffic -d traffic_lab"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Analytical Database - ClickHouse
+  # =============================================================================
+  clickhouse:
+    image: clickhouse/clickhouse-server:24.3
+    container_name: traffic-clickhouse
+    ports:
+      - "8123:8123"
+      - "9000:9000"
+    environment:
+      CLICKHOUSE_DB: traffic_lab
+      CLICKHOUSE_USER: traffic
+      CLICKHOUSE_PASSWORD: traffic
+    volumes:
+      - clickhouse_data:/var/lib/clickhouse
+      - ./init-clickhouse.sql:/docker-entrypoint-initdb.d/init-clickhouse.sql
+    ulimits:
+      nofile:
+        soft: 262144
+        hard: 262144
+    healthcheck:
+      test: ["CMD", "clickhouse-client", "--query", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Object Storage - MinIO
+  # =============================================================================
+  minio:
+    image: minio/minio:RELEASE.2024-05-28T17-19-04Z
+    container_name: traffic-minio
+    command: server /data --console-address ":9001"
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    volumes:
+      - minio_data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traffic-net
+
+  # MinIO bucket initialization
+  minio-init:
+    image: minio/mc:RELEASE.2024-05-28T17-19-04Z
+    container_name: traffic-minio-init
+    depends_on:
+      minio:
+        condition: service_healthy
+    entrypoint: >
+      /bin/sh -c "
+      mc alias set local http://minio:9000 minioadmin minioadmin;
+      mc mb local/traffic-lab --ignore-existing;
+      mc policy set public local/traffic-lab;
+      echo 'MinIO bucket created'
+      "
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Experiment Tracking - MLflow
+  # =============================================================================
+  mlflow:
+    image: ghcr.io/mlflow/mlflow:v2.14.0
+    container_name: traffic-mlflow
+    command: mlflow server --host 0.0.0.0 --port 5000 --backend-store-uri postgresql://traffic:traffic@timescaledb:5432/traffic_lab --default-artifact-root s3://traffic-lab/mlflow
+    ports:
+      - "5000:5000"
+    environment:
+      AWS_ACCESS_KEY_ID: minioadmin
+      AWS_SECRET_ACCESS_KEY: minioadmin
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+      MLFLOW_S3_IGNORE_TLS: "true"
+    depends_on:
+      timescaledb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Metrics - Prometheus
+  # =============================================================================
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    container_name: traffic-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--web.console.libraries=/etc/prometheus/console_libraries'
+      - '--web.console.templates=/etc/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Visualization - Grafana
+  # =============================================================================
+  grafana:
+    image: grafana/grafana:11.0.0
+    container_name: traffic-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: admin
+      GF_SECURITY_ADMIN_PASSWORD: admin
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      GF_INSTALL_PLUGINS: grafana-piechart-panel
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning
+      - ./grafana/dashboards:/var/lib/grafana/dashboards
+    depends_on:
+      - prometheus
+      - timescaledb
+      - clickhouse
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Distributed Tracing - Jaeger
+  # =============================================================================
+  jaeger:
+    image: jaegertracing/all-in-one:1.57
+    container_name: traffic-jaeger
+    ports:
+      - "16686:16686"
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+      - "6831:6831/udp"  # Jaeger agent
+    environment:
+      COLLECTOR_OTLP_ENABLED: "true"
+      SPAN_STORAGE_TYPE: badger
+    volumes:
+      - jaeger_data:/var/lib/jaeger
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # SUMO Simulation (optional - for GUI access)
+  # =============================================================================
+  sumo:
+    image: registry.hub.docker.com/eclipse/sumo:1.19.0
+    container_name: traffic-sumo
+    ports:
+      - "8813:8813"
+    volumes:
+      - ../../simulation/sumo:/sumo
+    command: sumo-gui -c /sumo/simple_intersection.sumocfg --remote-port 8813
+    profiles:
+      - simulation
+    networks:
+      - traffic-net
+
+networks:
+  traffic-net:
+    driver: bridge
+
+volumes:
+  redpanda_data:
+  timescaledb_data:
+  clickhouse_data:
+  minio_data:
+  prometheus_data:
+  grafana_data:
+  jaeger_data:

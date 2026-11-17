@@ -1,0 +1,31 @@
+[project]
+name = "traffic-traffic"
+version = "0.1.0"
+description = "Traffic state estimation - lane mapping, queue estimation, metrics"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "traffic-domain",
+    "traffic-config",
+    "traffic-observability",
+    "traffic-tracking",
+    "traffic-vision",
+    "numpy>=1.26",
+    "shapely>=2.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["traffic_traffic*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true

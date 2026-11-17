@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: traffic-observability
+Version: 0.1.0
+Summary: Structured logging, metrics, and tracing for Adaptive Traffic Flow Lab
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: structlog>=24.1
+Requires-Dist: opentelemetry-api>=1.21
+Requires-Dist: opentelemetry-sdk>=1.21
+Requires-Dist: opentelemetry-exporter-otlp>=1.21
+Requires-Dist: prometheus-client>=0.19
+Requires-Dist: python-json-logger>=2.0

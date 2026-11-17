@@ -1,0 +1,28 @@
+[project]
+name = "traffic-simulation"
+version = "0.1.0"
+description = "Simulator-independent interfaces and SUMO integration"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "traffic-domain",
+    "traffic-config",
+    "traffic-observability",
+    "traffic-control",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["traffic_simulation*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true

@@ -1,0 +1,36 @@
+[project]
+name = "traffic-observability"
+version = "0.1.0"
+description = "Structured logging, metrics, and tracing for Adaptive Traffic Flow Lab"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "structlog>=24.1",
+    "opentelemetry-api>=1.21",
+    "opentelemetry-sdk>=1.21",
+    "opentelemetry-exporter-otlp>=1.21",
+    "prometheus-client>=0.19",
+    "python-json-logger>=2.0",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["traffic_observability*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+select = ["E", "F", "I", "UP", "W"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.mypy]
+python_version = "3.11"
+warn_return_any = true
+warn_unused_configs = true
+disallow_untyped_defs = true

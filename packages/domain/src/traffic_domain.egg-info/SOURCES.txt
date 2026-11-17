@@ -1,0 +1,8 @@
+pyproject.toml
+src/traffic_domain/__init__.py
+src/traffic_domain/schemas.py
+src/traffic_domain.egg-info/PKG-INFO
+src/traffic_domain.egg-info/SOURCES.txt
+src/traffic_domain.egg-info/dependency_links.txt
+src/traffic_domain.egg-info/requires.txt
+src/traffic_domain.egg-info/top_level.txt

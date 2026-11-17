@@ -1,0 +1,87 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    project: 'adaptive-traffic-flow-lab'
+    environment: 'development'
+
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+rule_files: []
+
+scrape_configs:
+  # Prometheus self-monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Traffic Lab services (will be discovered via service discovery in production)
+  - job_name: 'traffic-vision-worker'
+    static_configs:
+      - targets: ['host.docker.internal:9091']  # vision_worker metrics port
+        labels:
+          service: 'vision_worker'
+
+  - job_name: 'traffic-state-service'
+    static_configs:
+      - targets: ['host.docker.internal:9092']  # state_service metrics port
+        labels:
+          service: 'state_service'
+
+  - job_name: 'traffic-control-service'
+    static_configs:
+      - targets: ['host.docker.internal:9093']  # control_service metrics port
+        labels:
+          service: 'control_service'
+
+  - job_name: 'traffic-api'
+    static_configs:
+      - targets: ['host.docker.internal:9094']  # api metrics port
+        labels:
+          service: 'api'
+
+  # Infrastructure
+  - job_name: 'redpanda'
+    static_configs:
+      - targets: ['redpanda:9644']
+    metrics_path: /metrics
+
+  - job_name: 'timescaledb'
+    static_configs:
+      - targets: ['timescaledb:9187']  # postgres_exporter
+    metrics_path: /metrics
+
+  - job_name: 'clickhouse'
+    static_configs:
+      - targets: ['clickhouse:9363']  # clickhouse exporter port
+    metrics_path: /metrics
+
+  - job_name: 'minio'
+    static_configs:
+      - targets: ['minio:9000']
+    metrics_path: /minio/v2/metrics/cluster
+
+  - job_name: 'grafana'
+    static_configs:
+      - targets: ['grafana:3000']
+    metrics_path: /metrics
+
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+    metrics_path: /metrics
+
+  # Node exporter for host metrics (run on host)
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['host.docker.internal:9100']
+    metrics_path: /metrics
+
+  # cAdvisor for container metrics
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['host.docker.internal:8080']
+    metrics_path: /metrics

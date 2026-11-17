@@ -1,0 +1,29 @@
+[project]
+name = "traffic-control"
+version = "0.1.0"
+description = "Traffic signal control policies - fixed-time, max-pressure, MPC, RL"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "traffic-domain",
+    "traffic-config",
+    "traffic-observability",
+    "traffic-traffic",
+    "numpy>=1.26",
+]
+
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["traffic_control*"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+
+[tool.mypy]
+python_version = "3.11"
+disallow_untyped_defs = true
