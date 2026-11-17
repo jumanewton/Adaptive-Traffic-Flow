@@ -1,7 +1,10 @@
 pyproject.toml
 src/traffic_vision/__init__.py
+src/traffic_vision/bentoml_service.py
 src/traffic_vision/calibration.py
+src/traffic_vision/deployment.py
 src/traffic_vision/detector.py
+src/traffic_vision/triton_client.py
 src/traffic_vision.egg-info/PKG-INFO
 src/traffic_vision.egg-info/SOURCES.txt
 src/traffic_vision.egg-info/dependency_links.txt

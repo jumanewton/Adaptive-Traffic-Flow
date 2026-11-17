@@ -1,0 +1,7 @@
+traffic-domain
+traffic-config
+traffic-observability
+traffic-control
+traffic-streaming
+traffic-simulation
+numpy>=1.26

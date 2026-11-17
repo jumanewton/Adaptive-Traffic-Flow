@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: traffic-storage-consumer
+Version: 0.1.0
+Summary: Kafka consumer for persisting traffic events to TimescaleDB and ClickHouse
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: traffic-streaming
+Requires-Dist: traffic-storage

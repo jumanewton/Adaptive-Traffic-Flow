@@ -1,0 +1,9 @@
+pyproject.toml
+src/traffic_storage_consumer/__init__.py
+src/traffic_storage_consumer/__main__.py
+src/traffic_storage_consumer/main.py
+src/traffic_storage_consumer.egg-info/PKG-INFO
+src/traffic_storage_consumer.egg-info/SOURCES.txt
+src/traffic_storage_consumer.egg-info/dependency_links.txt
+src/traffic_storage_consumer.egg-info/requires.txt
+src/traffic_storage_consumer.egg-info/top_level.txt

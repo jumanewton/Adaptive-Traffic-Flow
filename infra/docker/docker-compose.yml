@@ -224,6 +224,62 @@ services:
       - traffic-net
 
   # =============================================================================
+  # Model Serving - Triton Inference Server
+  # =============================================================================
+  triton:
+    image: nvcr.io/nvidia/tritonserver:24.04-py3
+    container_name: traffic-triton
+    ports:
+      - "8000:8000"   # HTTP
+      - "8001:8001"   # gRPC
+      - "8002:8002"   # Metrics
+    command:
+      - tritonserver
+      - --model-repository=/models
+      - --log-verbose=1
+      - --strict-model-config=false
+    volumes:
+      - ./triton-model-repo:/models
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - inference
+    networks:
+      - traffic-net
+
+  # =============================================================================
+  # Model Serving - BentoML
+  # =============================================================================
+  bentoml:
+    build:
+      context: ../../
+      dockerfile: infra/docker/Dockerfile.bentoml
+    container_name: traffic-bentoml
+    ports:
+      - "3001:3000"
+    environment:
+      - BENTOML_PORT=3000
+      - VISION_MODEL_PATH=/models/yolo.onnx
+    volumes:
+      - ./triton-model-repo:/models:ro
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    profiles:
+      - inference
+    networks:
+      - traffic-net
+
+  # =============================================================================
   # SUMO Simulation (optional - for GUI access)
   # =============================================================================
   sumo:
@@ -251,3 +307,4 @@ volumes:
   prometheus_data:
   grafana_data:
   jaeger_data:
+  triton_model_repo:

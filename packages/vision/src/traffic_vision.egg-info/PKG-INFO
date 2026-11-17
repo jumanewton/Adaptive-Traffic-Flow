@@ -10,3 +10,24 @@ Requires-Dist: traffic-observability
 Requires-Dist: opencv-python>=4.9
 Requires-Dist: ultralytics>=8.2
 Requires-Dist: torch>=2.3
+Requires-Dist: onnx>=1.16
+Requires-Dist: onnxsim>=0.4
+Provides-Extra: onnx
+Requires-Dist: onnxruntime>=1.18; extra == "onnx"
+Provides-Extra: onnx-gpu
+Requires-Dist: onnxruntime-gpu>=1.18; extra == "onnx-gpu"
+Provides-Extra: tensorrt
+Requires-Dist: tensorrt>=8.6; extra == "tensorrt"
+Requires-Dist: pycuda>=2023.1; extra == "tensorrt"
+Provides-Extra: triton
+Requires-Dist: tritonclient[grpc,http]>=2.47; extra == "triton"
+Provides-Extra: bentoml
+Requires-Dist: bentoml>=1.2; extra == "bentoml"
+Requires-Dist: pillow>=10.0; extra == "bentoml"
+Provides-Extra: deploy
+Requires-Dist: onnxruntime>=1.18; extra == "deploy"
+Requires-Dist: tensorrt>=8.6; extra == "deploy"
+Requires-Dist: pycuda>=2023.1; extra == "deploy"
+Requires-Dist: tritonclient[grpc,http]>=2.47; extra == "deploy"
+Requires-Dist: bentoml>=1.2; extra == "deploy"
+Requires-Dist: pillow>=10.0; extra == "deploy"

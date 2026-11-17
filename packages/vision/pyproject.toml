@@ -11,6 +11,23 @@ dependencies = [
     "opencv-python>=4.9",
     "ultralytics>=8.2",
     "torch>=2.3",
+    "onnx>=1.16",
+    "onnxsim>=0.4",
+]
+
+[project.optional-dependencies]
+onnx = ["onnxruntime>=1.18"]
+onnx-gpu = ["onnxruntime-gpu>=1.18"]
+tensorrt = ["tensorrt>=8.6", "pycuda>=2023.1"]
+triton = ["tritonclient[http,grpc]>=2.47"]
+bentoml = ["bentoml>=1.2", "pillow>=10.0"]
+deploy = [
+    "onnxruntime>=1.18",
+    "tensorrt>=8.6",
+    "pycuda>=2023.1",
+    "tritonclient[http,grpc]>=2.47",
+    "bentoml>=1.2",
+    "pillow>=10.0",
 ]
 
 [build-system]

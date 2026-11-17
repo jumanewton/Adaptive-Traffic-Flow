@@ -1,0 +1,59 @@
+# BentoML service Dockerfile for YOLO traffic detection
+FROM nvidia/cuda:12.4.1-runtime-ubuntu22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+ENV PYTHONUNBUFFERED=1
+ENV PIP_NO_CACHE_DIR=1
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3.11 \
+    python3.11-venv \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Create virtual environment
+RUN python3.11 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
+
+# Upgrade pip
+RUN pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA support
+RUN pip install torch torchvision --index-url https://download.pytorch.org/whl/cu124
+
+# Install traffic-vision with deployment extras
+WORKDIR /app
+COPY packages/vision /app/packages/vision
+COPY packages/domain /app/packages/domain
+COPY packages/config /app/packages/config
+COPY packages/observability /app/packages/observability
+COPY packages/streaming /app/packages/streaming
+
+RUN pip install -e /app/packages/domain \
+    && pip install -e /app/packages/config \
+    && pip install -e /app/packages/observability \
+    && pip install -e /app/packages/streaming \
+    && pip install -e /app/packages/vision[deploy,bentoml]
+
+# Install BentoML
+RUN pip install bentoml[standard]==1.2.25
+
+# Copy BentoML service
+COPY packages/vision/src/traffic_vision/bentoml_service.py /app/service.py
+
+# Expose port
+EXPOSE 3000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=10s --retries=3 \
+    CMD curl -f http://localhost:3000/health || exit 1
+
+# Run BentoML service
+CMD ["python", "-m", "bentoml", "serve", "service:YOLODetectorService", "--host", "0.0.0.0", "--port", "3000"]
