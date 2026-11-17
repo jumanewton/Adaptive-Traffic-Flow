@@ -1,0 +1,16 @@
+Metadata-Version: 2.4
+Name: traffic-vision-worker
+Version: 0.1.0
+Summary: Video ingestion, YOLO inference, and ByteTrack tracking
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: traffic-vision
+Requires-Dist: traffic-tracking
+Requires-Dist: traffic-streaming
+Requires-Dist: opencv-python>=4.9
+Requires-Dist: ultralytics>=8.2
+Requires-Dist: torch>=2.3
+Requires-Dist: filterpy>=1.4

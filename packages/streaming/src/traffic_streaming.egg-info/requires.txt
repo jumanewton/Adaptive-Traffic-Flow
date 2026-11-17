@@ -1,0 +1,5 @@
+traffic-domain
+traffic-config
+traffic-observability
+aiokafka>=0.10
+kafka-python-ng>=2.2

@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: traffic-streaming
+Version: 0.1.0
+Summary: Kafka-compatible event streaming for Adaptive Traffic Flow Lab
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: aiokafka>=0.10
+Requires-Dist: kafka-python-ng>=2.2

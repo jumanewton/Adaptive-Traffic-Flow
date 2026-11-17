@@ -1,0 +1,7 @@
+traffic-domain
+traffic-config
+traffic-observability
+asyncpg>=0.29
+sqlalchemy>=2.0
+clickhouse-connect>=0.8
+minio>=7.2

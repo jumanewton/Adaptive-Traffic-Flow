@@ -201,7 +201,7 @@ class StreamingSettings(BaseSettings):
     acks: Literal["all", "1", "0"] = "all"
     retries: int = 3
     linger_ms: int = 5
-    compression_type: Literal["gzip", "snappy", "lz4", "zstd", "none"] = "lz4"
+    compression_type: Literal["gzip", "snappy", "lz4", "zstd", "none"] = "gzip"
 
     # Consumer
     group_id: str = "traffic-lab-consumer"

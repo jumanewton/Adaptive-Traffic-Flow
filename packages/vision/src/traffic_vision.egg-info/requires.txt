@@ -1,0 +1,6 @@
+traffic-domain
+traffic-config
+traffic-observability
+opencv-python>=4.9
+ultralytics>=8.2
+torch>=2.3

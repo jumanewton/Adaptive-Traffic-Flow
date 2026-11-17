@@ -1,0 +1,13 @@
+Metadata-Version: 2.4
+Name: traffic-storage
+Version: 0.1.0
+Summary: Data storage adapters for databases and object storage
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: asyncpg>=0.29
+Requires-Dist: sqlalchemy>=2.0
+Requires-Dist: clickhouse-connect>=0.8
+Requires-Dist: minio>=7.2

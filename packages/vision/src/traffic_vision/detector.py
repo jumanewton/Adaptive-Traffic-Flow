@@ -90,7 +90,6 @@ class YOLODetector(Detector):
 
         logger.info("YOLO model loaded", model=model_path, device=self._settings.device)
 
-    @track_latency("traffic_vision_inference_latency_ms", labels={"model": "yolo"})
     def detect(self, frame: np.ndarray, frame_id: int) -> list[Detection]:
         """Run YOLO detection on a frame."""
         if self._model is None:

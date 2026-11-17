@@ -118,13 +118,32 @@ class ByteTracker(Tracker):
     (Zhang et al., 2021)
     """
 
-    def __init__(self, settings: TrackingSettings | None = None):
+    def __init__(
+        self,
+        settings: TrackingSettings | None = None,
+        camera_id: str = "default",
+    ):
         """Initialize ByteTracker."""
         self._settings = settings or get_settings().tracking
+        self._camera_id = camera_id
         self._tracks: dict[Any, KalmanState] = {}
         self._next_id = 1
         self._frame_count = 0
         self._metrics = get_metrics_registry()
+
+        # Pre-initialize metrics with camera_id label
+        self._metrics.gauge(
+            "traffic_tracks_active",
+            "Number of active tracks",
+            ["camera_id"],
+        ).labels(camera_id=self._camera_id)
+
+        self._metrics.histogram(
+            "traffic_track_age_frames",
+            "Track age in frames",
+            ["camera_id"],
+            buckets=[1, 5, 10, 30, 60, 120, 300, 600],
+        )
 
     def _create_kalman_filter(self) -> KalmanFilter:
         """Create a Kalman filter for tracking (constant velocity model)."""
@@ -247,17 +266,18 @@ class ByteTracker(Tracker):
                 result_tracks.append(self._to_track(track))
 
         # Update metrics
+        confirmed_count = len([t for t in result_tracks if t.status == TrackStatus.CONFIRMED])
         self._metrics.set_gauge(
             "traffic_tracks_active",
-            len([t for t in result_tracks if t.status == TrackStatus.CONFIRMED]),
-            labels={"camera_id": "default"},
+            confirmed_count,
+            labels={"camera_id": self._camera_id},
         )
 
         for track in result_tracks:
             self._metrics.observe_histogram(
                 "traffic_track_age_frames",
                 track.age,
-                labels={"camera_id": "default"},
+                labels={"camera_id": self._camera_id},
             )
 
         return result_tracks

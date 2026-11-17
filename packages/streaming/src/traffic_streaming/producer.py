@@ -50,11 +50,12 @@ class EventProducer:
             bootstrap_servers=self._bootstrap_servers,
             client_id=self._client_id,
             acks=self._settings.acks,
-            retries=self._settings.retries,
+            enable_idempotence=True,
             linger_ms=self._settings.linger_ms,
             compression_type=self._settings.compression_type if self._settings.compression_type != "none" else None,
             value_serializer=lambda v: json.dumps(v, default=str).encode("utf-8"),
             key_serializer=lambda k: k.encode("utf-8") if k else None,
+            retry_backoff_ms=100,
         )
 
         await self._producer.start()

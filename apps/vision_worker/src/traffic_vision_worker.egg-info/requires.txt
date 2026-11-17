@@ -1,0 +1,10 @@
+traffic-domain
+traffic-config
+traffic-observability
+traffic-vision
+traffic-tracking
+traffic-streaming
+opencv-python>=4.9
+ultralytics>=8.2
+torch>=2.3
+filterpy>=1.4

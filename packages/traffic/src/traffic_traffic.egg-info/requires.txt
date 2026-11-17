@@ -1,0 +1,7 @@
+traffic-domain
+traffic-config
+traffic-observability
+traffic-tracking
+traffic-vision
+numpy>=1.26
+shapely>=2.0

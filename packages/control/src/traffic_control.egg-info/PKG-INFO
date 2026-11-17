@@ -1,0 +1,11 @@
+Metadata-Version: 2.4
+Name: traffic-control
+Version: 0.1.0
+Summary: Traffic signal control policies - fixed-time, max-pressure, MPC, RL
+Requires-Python: >=3.11
+Description-Content-Type: text/markdown
+Requires-Dist: traffic-domain
+Requires-Dist: traffic-config
+Requires-Dist: traffic-observability
+Requires-Dist: traffic-traffic
+Requires-Dist: numpy>=1.26
