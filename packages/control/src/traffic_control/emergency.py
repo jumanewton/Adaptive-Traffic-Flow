@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import time
 from dataclasses import dataclass, field
+from datetime import datetime, timezone
 from enum import Enum
 from typing import Any
 from collections import deque
@@ -81,6 +82,18 @@ class EmergencyVehicleDetector:
         self._active_vehicles: dict[str, EmergencyVehicle] = {}
         self._metrics = get_metrics_registry()
 
+        # Pre-create metrics with labels
+        self._detected_counter = self._metrics.counter(
+            "emergency_vehicle_detected_total",
+            "Total emergency vehicles detected",
+            ["type", "intersection"],
+        )
+        self._cleared_counter = self._metrics.counter(
+            "emergency_vehicle_cleared_total",
+            "Total emergency vehicles cleared",
+            [],
+        )
+
     def process_detection(
         self,
         vehicle_id: str,
@@ -108,10 +121,7 @@ class EmergencyVehicleDetector:
 
         self._active_vehicles[vehicle_id] = vehicle
 
-        self._metrics.inc_counter(
-            "emergency_vehicle_detected_total",
-            labels={"type": vehicle_type.value, "intersection": intersection_id},
-        )
+        self._detected_counter.labels(type=vehicle_type.value, intersection=intersection_id).inc()
 
         logger.info("Emergency vehicle detected",
                     vehicle_id=vehicle_id,
@@ -120,6 +130,14 @@ class EmergencyVehicleDetector:
                     eta=eta)
 
         return vehicle
+
+    def remove_vehicle(self, vehicle_id: str) -> bool:
+        """Remove vehicle (passed intersection or cancelled)."""
+        if vehicle_id in self._active_vehicles:
+            del self._active_vehicles[vehicle_id]
+            self._cleared_counter.inc()
+            return True
+        return False
 
     def process_event(self, event: TrafficEvent) -> EmergencyVehicle | None:
         """Process emergency vehicle event from Kafka."""
@@ -195,6 +213,18 @@ class PreemptionManager:
         self._detector = detector
         self._metrics = get_metrics_registry()
 
+        # Pre-create metrics with labels
+        self._granted_counter = self._metrics.counter(
+            "preemption_granted_total",
+            "Total preemptions granted",
+            ["intersection", "vehicle_type"],
+        )
+        self._released_counter = self._metrics.counter(
+            "preemption_released_total",
+            "Total preemptions released",
+            ["intersection"],
+        )
+
         # Active preemption
         self._current_preemption: PreemptionRequest | None = None
         self._preemption_history: deque[PreemptionRequest] = deque(maxlen=100)
@@ -217,7 +247,9 @@ class PreemptionManager:
         vehicle = max(vehicles, key=lambda v: v.priority)
 
         # Check if vehicle is close enough to warrant preemption
-        if vehicle.eta_seconds > self._settings.emergency_preempt_time:
+        preempt_time = getattr(self._settings, 'emergency_preempt_time',
+                               getattr(self._settings, 'emergency_clearance_time', 30))
+        if vehicle.eta_seconds > preempt_time:
             return False, None
 
         # Determine target phase
@@ -258,10 +290,10 @@ class PreemptionManager:
         # Move to active
         self._current_preemption.status = PreemptionStatus.ACTIVE
 
-        self._metrics.inc_counter(
-            "preemption_granted_total",
-            labels={"intersection": self._config.intersection_id, "vehicle_type": vehicle.vehicle_type.value},
-        )
+        self._granted_counter.labels(
+            intersection=self._config.intersection_id,
+            vehicle_type=vehicle.vehicle_type.value,
+        ).inc()
 
         logger.warning("PREEMPTION GRANTED",
                        intersection=self._config.intersection_id,
@@ -277,17 +309,20 @@ class PreemptionManager:
             self._current_preemption.released_at = time.time()
             self._preemption_history.append(self._current_preemption)
 
-            self._metrics.inc_counter(
-                "preemption_released_total",
-                labels={"intersection": self._config.intersection_id},
-            )
+            self._released_counter.labels(
+                intersection=self._config.intersection_id
+            ).inc()
 
             logger.info("PREEMPTION RELEASED",
                         intersection=self._config.intersection_id,
                         vehicle=self._current_preemption.vehicle.vehicle_id)
 
-        # Create recovery recommendation
+        from datetime import datetime, timezone
+
+# Create recovery recommendation
         recovery = ControllerRecommendation(
+            intersection_id=self._config.intersection_id,
+            timestamp=datetime.now(timezone.utc),
             action=ControllerAction.SWITCH_PHASE,
             current_phase=self._recovery_phase or SignalPhase.NORTH_SOUTH_GREEN,
             duration_seconds=self._settings.min_green_time,
@@ -311,6 +346,8 @@ class PreemptionManager:
         remaining_time = max(vehicle.eta_seconds + 5, self._settings.min_green_time)  # 5s buffer
 
         return ControllerRecommendation(
+            intersection_id=self._config.intersection_id,
+            timestamp=datetime.now(timezone.utc),
             action=ControllerAction.SWITCH_PHASE if target_phase != self._preemption_phase else ControllerAction.EXTEND,
             current_phase=target_phase,
             duration_seconds=remaining_time,

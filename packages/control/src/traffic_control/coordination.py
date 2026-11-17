@@ -113,9 +113,14 @@ class MultiIntersectionCoordinator:
         else:
             return self._compute_adaptive()
 
+    def _get_cycle_length(self) -> float:
+        """Get cycle length from settings."""
+        return getattr(self._settings, 'fixed_time_cycle_length',
+                       getattr(self._settings, 'cycle_length', 120))
+
     def _compute_fixed_offset(self) -> CoordinationPlan:
         """Fixed offset plan based on link travel times."""
-        cycle = self._settings.cycle_length
+        cycle = self._get_cycle_length()
         offsets = {}
 
         # Sort intersections topologically (simplified)
@@ -142,7 +147,7 @@ class MultiIntersectionCoordinator:
 
     def _compute_green_wave(self) -> CoordinationPlan:
         """Green wave progression based on platoon speeds."""
-        cycle = self._settings.cycle_length
+        cycle = self._get_cycle_length()
         offsets = {}
 
         # Estimate platoon speed from upstream flows
@@ -185,13 +190,14 @@ class MultiIntersectionCoordinator:
 
         avg_pressure = total_pressure / max(n_intersections, 1)
 
+        base_cycle = self._get_cycle_length()
         # Adjust cycle length based on pressure
         if avg_pressure > 0.8:
-            cycle = self._settings.cycle_length * 1.2  # Longer cycle
+            cycle = base_cycle * 1.2  # Longer cycle
         elif avg_pressure < 0.3:
-            cycle = self._settings.cycle_length * 0.8  # Shorter cycle
+            cycle = base_cycle * 0.8  # Shorter cycle
         else:
-            cycle = self._settings.cycle_length
+            cycle = base_cycle
 
         # Simple fixed offsets
         offsets = {int_id: 0.0 for int_id in self._intersections}
@@ -205,7 +211,7 @@ class MultiIntersectionCoordinator:
 
     def _compute_rhythmic(self) -> CoordinationPlan:
         """Rhythmic coordination - all intersections same cycle, optimized offsets."""
-        cycle = self._settings.cycle_length
+        cycle = self._get_cycle_length()
 
         # Optimize offsets using MILP or heuristic (simplified here)
         offsets = self._optimize_offsets_heuristic(cycle)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import numpy as np
 from dataclasses import dataclass
+from datetime import datetime, timezone
 from typing import Any
 from collections import deque
 
@@ -88,18 +89,23 @@ class TrafficFlowModel:
             for aid in self._approach_ids
         ])
 
-        # Current waiting times per approach (seconds)
+        # Current waiting times per approach (seconds) - estimated from queue and speed
         wait = np.array([
-            next((a.avg_wait_time_s for a in current_state.approaches if a.approach_id == aid), 0.0)
+            next((a.queue_length_m / max(a.average_speed_kmh / 3.6, 0.1) for a in current_state.approaches if a.approach_id == aid), 0.0)
             for aid in self._approach_ids
         ])
 
-        # Arrival rates per approach (veh/s)
-        arrivals = np.array([
-            next((a.vehicle_count / max(a.occupancy * 10, 1) * 0.1, 0.1)  # rough estimate
-            for a in current_state.approaches if a.approach_id == aid)
-            for aid in self._approach_ids
-        ])
+        # Arrival rates per approach (veh/s) - estimate from lane occupancy
+        arrivals_list = []
+        for aid in self._approach_ids:
+            approach = next((a for a in current_state.approaches if a.approach_id == aid), None)
+            if approach and approach.lanes:
+                avg_occupancy = np.mean([l.occupancy for l in approach.lanes.values()])
+                # Estimate arrival rate from occupancy and vehicle count
+                arrivals_list.append(approach.vehicle_count / max(avg_occupancy * 10, 1) * 0.1)
+            else:
+                arrivals_list.append(0.1)
+        arrivals = np.array(arrivals_list)
 
         # Simplified: use average flow if no data
         if np.all(arrivals == 0):
@@ -165,6 +171,7 @@ class MPCController(BaseController):
         cost_weights: dict[str, float] | None = None,
     ):
         super().__init__(intersection_config, settings)
+        self._intersection_config = intersection_config  # Alias for compatibility
         self._horizon = horizon
         self._dt = dt
         self._flow_model = TrafficFlowModel(intersection_config, dt)
@@ -176,6 +183,18 @@ class MPCController(BaseController):
         }
         self._metrics = get_metrics_registry()
         self._prediction_history: deque[MPCPrediction] = deque(maxlen=100)
+
+        # Pre-create histogram metrics with labels
+        self._opt_cost_hist = self._metrics.histogram(
+            "mpc_optimization_cost",
+            "MPC optimization cost",
+            ["intersection"],
+        )
+        self._horizon_queue_hist = self._metrics.histogram(
+            "mpc_horizon_queue",
+            "MPC predicted average queue over horizon",
+            ["intersection"],
+        )
 
     def compute_action(self, state: TrafficState) -> ControllerRecommendation:
         """Compute optimal phase sequence using MPC."""
@@ -195,9 +214,11 @@ class MPCController(BaseController):
         if best_candidate is None:
             # Fallback to current phase
             return ControllerRecommendation(
+                intersection_id=self._intersection_config.intersection_id,
+                timestamp=datetime.now(timezone.utc),
                 action=ControllerAction.HOLD,
                 current_phase=self._current_phase,
-                duration_seconds=self._settings.min_green_time,
+                duration_seconds=self.settings.min_green_time,
                 confidence=0.5,
                 reason="MPC: no valid candidates, holding",
                 controller_type="mpc",
@@ -211,29 +232,27 @@ class MPCController(BaseController):
             next_phase = phase_seq[0]
             duration = durations[0]
         else:
-            action = ControllerAction.EXTEND
+            action = ControllerAction.EXTEND_GREEN
             next_phase = self._current_phase
             duration = durations[0] - self._phase_elapsed
+
+        # Handle None current phase
+        if next_phase is None:
+            next_phase = self._intersection_config.phases[0] if self._intersection_config.phases else SignalPhase.NORTH_SOUTH_GREEN
 
         # Store prediction for monitoring
         self._prediction_history.append(pred)
 
         # Record metrics
-        self._metrics.record_histogram(
-            "mpc_optimization_cost",
-            best_cost,
-            labels={"intersection": self._intersection_config.intersection_id},
-        )
-        self._metrics.record_histogram(
-            "mpc_horizon_queue",
-            float(np.mean(pred.predicted_queue)),
-            labels={"intersection": self._intersection_config.intersection_id},
-        )
+        self._opt_cost_hist.labels(intersection=self._intersection_config.intersection_id).observe(best_cost)
+        self._horizon_queue_hist.labels(intersection=self._intersection_config.intersection_id).observe(float(np.mean(pred.predicted_queue)))
 
         return ControllerRecommendation(
+            intersection_id=self._intersection_config.intersection_id,
+            timestamp=datetime.now(timezone.utc),
             action=action,
             current_phase=next_phase,
-            duration_seconds=max(duration, self._settings.min_green_time),
+            duration_seconds=max(duration, self.settings.min_green_time),
             confidence=0.8,
             reason=f"MPC: optimal cost={best_cost:.1f}, horizon={self._horizon}s",
             controller_type="mpc",
@@ -255,7 +274,7 @@ class MPCController(BaseController):
         # Candidate 1: Stay in current phase
         candidates.append((
             [self._current_phase] * 3,
-            [self._settings.max_green_time] * 3,
+            [self.settings.max_green_time] * 3,
         ))
 
         # Candidate 2: Switch to next phase immediately
@@ -263,7 +282,7 @@ class MPCController(BaseController):
         next_phase = phases[next_idx]
         candidates.append((
             [next_phase] + [phases[(next_idx + 1) % len(phases)]] * 2,
-            [self._settings.min_green_time, self._settings.max_green_time, self._settings.max_green_time],
+            [self.settings.min_green_time, self.settings.max_green_time, self.settings.max_green_time],
         ))
 
         # Candidate 3: Skip to phase after next (if pressure high)
@@ -271,18 +290,18 @@ class MPCController(BaseController):
         skip_phase = phases[skip_idx]
         candidates.append((
             [skip_phase] + [phases[(skip_idx + 1) % len(phases)]] * 2,
-            [self._settings.min_green_time, self._settings.max_green_time, self._settings.max_green_time],
+            [self.settings.min_green_time, self.settings.max_green_time, self.settings.max_green_time],
         ))
 
         # Candidate 4: Full cycle from current
         full_cycle = phases[current_idx:] + phases[:current_idx]
-        cycle_durations = [self._settings.max_green_time] * len(phases)
+        cycle_durations = [self.settings.max_green_time] * len(phases)
         candidates.append((full_cycle, cycle_durations))
 
         # Candidate 5: Short cycle for high pressure
         if self._estimate_pressure(state) > 0.7:
             short_cycle = phases[current_idx:] + phases[:current_idx]
-            short_durations = [self._settings.min_green_time] * len(phases)
+            short_durations = [self.settings.min_green_time] * len(phases)
             candidates.append((short_cycle, short_durations))
 
         return candidates

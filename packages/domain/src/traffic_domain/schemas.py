@@ -32,6 +32,8 @@ class EventType(str, Enum):
     CONTROLLER_RECOMMENDATION = "controller_recommendation"
     PHASE_CHANGE = "phase_change"
     INCIDENT = "incident"
+    EMERGENCY_VEHICLE = "emergency_vehicle"
+    COORDINATION_PLAN = "coordination_plan"
     HEARTBEAT = "heartbeat"
 
 
